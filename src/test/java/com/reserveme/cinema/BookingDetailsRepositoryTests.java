@@ -7,8 +7,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.ActiveProfiles;
 import reactor.test.StepVerifier;
+
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -19,8 +22,20 @@ class BookingDetailsRepositoryTests {
     @Autowired
     private BookingDetailsRepository repository;
 
+    @Autowired
+    private Environment environment;
+
     @BeforeEach
     void setUp() {
+        System.out.println("ACTIVE PROFILES: "
+                + Arrays.toString(environment.getActiveProfiles()));
+
+        System.out.println("MONGO URI: "
+                + environment.getProperty("spring.data.mongodb.uri"));
+
+        System.out.println("MONGO DATABASE: "
+                + environment.getProperty("spring.data.mongodb.database"));
+
         repository.deleteAll().block();
     }
 

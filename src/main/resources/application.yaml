@@ -3,5 +3,4 @@ spring:
     name: cinema
   data:
     mongodb:
-      uri: mongodb://root:secret@localhost:27017/mydatabase?authSource=admin
-      database: mydatabase
+      uri: mongodb://root:secret@127.0.0.1:27017/mydatabase?authSource=admin
