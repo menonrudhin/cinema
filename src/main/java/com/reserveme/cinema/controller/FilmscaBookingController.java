@@ -4,7 +4,10 @@ import com.reserveme.cinema.mapper.BookingDetailsMapper;
 import com.reserveme.cinema.model.BookingDetails;
 import com.reserveme.cinema.model.BookingRequest;
 import com.reserveme.cinema.repository.BookingDetailsRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
@@ -18,9 +21,9 @@ public class FilmscaBookingController implements BookingController {
     private BookingDetailsRepository bookingDetailsRepository;
 
     @Override
-    public Mono<BookingDetails> performBooking(BookingRequest bookingRequest) {
+    @PostMapping("/bookings")
+    public Mono<BookingDetails> performBooking(@Valid @RequestBody BookingRequest bookingRequest) {
         BookingDetails bookingDetails = bookingDetailsMapper.mapBookingDetails(bookingRequest);
-        bookingDetailsRepository.save(bookingDetails);
-        return Mono.just(bookingDetails);
+        return bookingDetailsRepository.save(bookingDetails);
     }
 }
