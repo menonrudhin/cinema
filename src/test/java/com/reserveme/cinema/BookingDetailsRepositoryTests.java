@@ -6,7 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.test.context.ActiveProfiles;
 import reactor.test.StepVerifier;
@@ -41,7 +40,7 @@ class BookingDetailsRepositoryTests {
 
     @Test
     void shouldCreateAndReadBooking() {
-        BookingDetails booking = createBooking("booking-1", "Grand Theater", "A1", 12, "acct-1", "show-1");
+        BookingDetails booking = createBooking("booking-1", "Grand Theater", "A1", 12, "1234", "show-1");
 
         StepVerifier.create(repository.save(booking)
                 .flatMap(saved -> repository.findById(saved.getBookingId())))
@@ -50,15 +49,16 @@ class BookingDetailsRepositoryTests {
                     assertThat(found.getTheaterName()).isEqualTo("Grand Theater");
                     assertThat(found.getAuditoriumId()).isEqualTo("A1");
                     assertThat(found.getSeatNumber()).isEqualTo(12);
-                    assertThat(found.getAccountId()).isEqualTo("acct-1");
+                    assertThat(found.getAccountId()).isEqualTo("1234");
                     assertThat(found.getShowId()).isEqualTo("show-1");
+                    assertThat(found.getEmail()).isEqualTo("user@example.com");
                 })
                 .verifyComplete();
     }
 
     @Test
     void shouldFindBookingByBookingId() {
-        BookingDetails booking = createBooking("booking-2", "Skyline Cinema", "B3", 22, "acct-2", "show-2");
+        BookingDetails booking = createBooking("booking-2", "Skyline Cinema", "B3", 22, "1234", "show-2");
 
         StepVerifier.create(repository.save(booking)
                 .thenMany(repository.findByBookingId("booking-2")))
@@ -66,6 +66,7 @@ class BookingDetailsRepositoryTests {
                     assertThat(found.getBookingId()).isEqualTo("booking-2");
                     assertThat(found.getTheaterName()).isEqualTo("Skyline Cinema");
                     assertThat(found.getSeatNumber()).isEqualTo(22);
+                    assertThat(found.getEmail()).isEqualTo("user@example.com");
                 })
                 .verifyComplete();
     }
@@ -90,7 +91,7 @@ class BookingDetailsRepositoryTests {
 
     @Test
     void shouldDeleteBooking() {
-        BookingDetails booking = createBooking("booking-4", "Riverside Cinema", "D2", 30, "acct-4", "show-4");
+        BookingDetails booking = createBooking("booking-4", "Riverside Cinema", "D2", 30, "1234", "show-4");
 
         StepVerifier.create(repository.save(booking)
                 .flatMap(saved -> repository.deleteById(saved.getBookingId())
@@ -107,6 +108,7 @@ class BookingDetailsRepositoryTests {
         booking.setSeatNumber(seatNumber);
         booking.setAccountId(accountId);
         booking.setShowId(showId);
+        booking.setEmail("user@example.com");
         return booking;
     }
 }
