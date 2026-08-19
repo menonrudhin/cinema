@@ -14,4 +14,5 @@ public class BookingDetails {
     private int seatNumber;
     private String accountId;
     private String showId;
+    private String email;
 }
