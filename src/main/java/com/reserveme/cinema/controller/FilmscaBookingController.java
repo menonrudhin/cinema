@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -24,6 +25,7 @@ public class FilmscaBookingController implements BookingController {
     @PostMapping("/bookings")
     public Mono<BookingDetails> performBooking(@Valid @RequestBody BookingRequest bookingRequest) {
         BookingDetails bookingDetails = bookingDetailsMapper.mapBookingDetails(bookingRequest);
+        bookingDetails.setBookingId(bookingDetails.getAuditoriumId()+bookingDetails.getShowId()+bookingDetails.getSeatNumber());
         return bookingDetailsRepository.save(bookingDetails);
     }
 }

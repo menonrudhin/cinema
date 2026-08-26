@@ -6,7 +6,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.reserveme.cinema.controller", "com.reserveme.cinema.mapper", "com.reserveme.cinema.repository"})
+@ComponentScan(basePackages = "com.reserveme.cinema")
 @EnableReactiveMongoRepositories
 public class CinemaApplication {
 
