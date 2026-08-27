@@ -37,14 +37,20 @@ public class FilmscaBookingController implements BookingController {
         BookingDetails bookingDetails = bookingDetailsMapper.mapBookingDetails(bookingRequest);
         bookingDetails.setBookingId(bookingDetails.getAuditoriumId()+bookingDetails.getShowId()+bookingDetails.getSeatNumber());
 
+        String unavailableMessage = "the seat is unavailable, please try other seats";
+
         return bookingDetailsRepository.findByAuditoriumIdAndSeatNumberAndShowId(
                         bookingDetails.getAuditoriumId(), bookingDetails.getSeatNumber(), bookingDetails.getShowId())
                 .next()
-                .flatMap(existingBooking -> Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body(existingBooking)))
+                .flatMap(existingBooking -> Mono.just(ResponseEntity.status(HttpStatus.CONFLICT)
+                        .header("X-Message", unavailableMessage)
+                        .body(existingBooking)))
                 .switchIfEmpty(
                         bookingDetailsRepository.save(bookingDetails)
                                 .map(saved -> ResponseEntity.status(HttpStatus.CREATED).body(saved))
-                                .onErrorResume(DuplicateKeyException.class, e -> Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).build()))
+                                .onErrorResume(DuplicateKeyException.class, e -> Mono.just(ResponseEntity.status(HttpStatus.CONFLICT)
+                                        .header("X-Message", unavailableMessage)
+                                        .build()))
                 );
     }
 }
