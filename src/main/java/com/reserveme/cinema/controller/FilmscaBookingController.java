@@ -9,6 +9,7 @@ import com.reserveme.cinema.repository.BookingDetailsRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,14 +32,14 @@ public class FilmscaBookingController implements BookingController {
 
     @Override
     @PostMapping("/bookings")
-    public Mono<BookingDetails> performBooking(@Valid @RequestBody BookingRequest bookingRequest, ServerWebExchange exchange) {
+    public Mono<ResponseEntity<BookingDetails>> performBooking(@Valid @RequestBody BookingRequest bookingRequest, ServerWebExchange exchange) {
         BookingDetails bookingDetails = bookingDetailsMapper.mapBookingDetails(bookingRequest);
         bookingDetails.setBookingId(bookingDetails.getAuditoriumId()+bookingDetails.getShowId()+bookingDetails.getSeatNumber());
 
         String bookingId = bookingDetails.getBookingId();
 
         return bookingDetailsRepository.save(bookingDetails)
-                .onErrorResume(org.springframework.dao.DuplicateKeyException.class,
-                        e -> Mono.error(new ResponseStatusException(HttpStatus.CONFLICT, "Booking already exists, " + bookingId)));
+                .map(saved -> ResponseEntity.status(HttpStatus.CREATED).body(saved))
+                .onErrorResume(DuplicateKeyException.class, e -> Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).build()));
     }
 }
