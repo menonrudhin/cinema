@@ -1,5 +1,6 @@
 package com.reserveme.cinema.filter;
 
+import com.reserveme.cinema.error.ErrorUtils;
 import com.reserveme.cinema.model.IdempotencyId;
 import com.reserveme.cinema.repository.IdempotencyIdRepository;
 import org.jspecify.annotations.NonNull;
@@ -23,8 +24,11 @@ public class IdempotencyFilter implements WebFilter, Ordered {
 
     private final IdempotencyIdRepository idempotencyIdRepository;
 
-    public IdempotencyFilter(@NonNull IdempotencyIdRepository idempotencyIdRepository) {
+    private ErrorUtils errorUtils;
+
+    public IdempotencyFilter(@NonNull IdempotencyIdRepository idempotencyIdRepository, @NonNull ErrorUtils errorUtils) {
         this.idempotencyIdRepository = idempotencyIdRepository;
+        this.errorUtils = errorUtils;
     }
 
     @Override
@@ -41,23 +45,16 @@ public class IdempotencyFilter implements WebFilter, Ordered {
         }
 
         return idempotencyIdRepository.findByIdempotencyId(idempotencyId)
-                .flatMap(existingId -> buildConflictResponse(exchange, idempotencyId))
+                .flatMap(existingId -> errorUtils.buildConflictResponse(exchange, idempotencyId))
                 .switchIfEmpty(Mono.defer(() -> {
                     IdempotencyId id = new IdempotencyId();
                     id.setIdempotencyId(idempotencyId);
                     id.setCreationDateTime(LocalDateTime.now());
                     return idempotencyIdRepository.save(id)
                             .then(chain.filter(exchange))
-                            .onErrorResume(DuplicateKeyException.class, e -> buildConflictResponse(exchange, idempotencyId));
+                            .onErrorResume(DuplicateKeyException.class, e -> errorUtils.buildConflictResponse(exchange, idempotencyId));
                 }));
     }
 
-    private Mono<Void> buildConflictResponse(ServerWebExchange exchange, String idempotencyId) {
-        String message = "{\"message\":\"Booking already exists, " + idempotencyId + "\"}";
-        exchange.getResponse().setStatusCode(HttpStatus.CONFLICT);
-        exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
-        DataBuffer buffer = exchange.getResponse().bufferFactory()
-                .wrap(message.getBytes(StandardCharsets.UTF_8));
-        return exchange.getResponse().writeWith(Mono.just(buffer));
-    }
+
 }

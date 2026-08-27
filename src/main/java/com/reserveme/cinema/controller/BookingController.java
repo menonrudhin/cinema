@@ -5,9 +5,10 @@ import com.reserveme.cinema.model.BookingRequest;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @RestController
 public interface BookingController {
-    Mono<BookingDetails> performBooking(@Validated @RequestBody BookingRequest bookingRequest);
+    Mono<BookingDetails> performBooking(@Validated @RequestBody BookingRequest bookingRequest, ServerWebExchange exchange);
 }
