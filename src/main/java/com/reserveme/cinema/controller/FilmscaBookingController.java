@@ -8,6 +8,7 @@ import com.reserveme.cinema.model.BookingRequest;
 import com.reserveme.cinema.repository.BookingDetailsRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
@@ -36,10 +37,14 @@ public class FilmscaBookingController implements BookingController {
         BookingDetails bookingDetails = bookingDetailsMapper.mapBookingDetails(bookingRequest);
         bookingDetails.setBookingId(bookingDetails.getAuditoriumId()+bookingDetails.getShowId()+bookingDetails.getSeatNumber());
 
-        String bookingId = bookingDetails.getBookingId();
-
-        return bookingDetailsRepository.save(bookingDetails)
-                .map(saved -> ResponseEntity.status(HttpStatus.CREATED).body(saved))
-                .onErrorResume(DuplicateKeyException.class, e -> Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).build()));
+        return bookingDetailsRepository.findByAuditoriumIdAndSeatNumberAndShowId(
+                        bookingDetails.getAuditoriumId(), bookingDetails.getSeatNumber(), bookingDetails.getShowId())
+                .next()
+                .flatMap(existingBooking -> Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body(existingBooking)))
+                .switchIfEmpty(
+                        bookingDetailsRepository.save(bookingDetails)
+                                .map(saved -> ResponseEntity.status(HttpStatus.CREATED).body(saved))
+                                .onErrorResume(DuplicateKeyException.class, e -> Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).build()))
+                );
     }
 }
