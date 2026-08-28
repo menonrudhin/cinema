@@ -2,6 +2,7 @@ package com.reserveme.cinema;
 
 import com.reserveme.cinema.model.BookingDetails;
 import com.reserveme.cinema.repository.BookingDetailsRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@Slf4j
 class BookingDetailsRepositoryTests {
 
     @Autowired
@@ -26,14 +28,14 @@ class BookingDetailsRepositoryTests {
 
     @BeforeEach
     void setUp() {
-        System.out.println("ACTIVE PROFILES: "
-                + Arrays.toString(environment.getActiveProfiles()));
+        log.debug("ACTIVE PROFILES: {}"
+                , Arrays.toString(environment.getActiveProfiles()));
 
-        System.out.println("MONGO URI: "
-                + environment.getProperty("spring.data.mongodb.uri"));
+        log.debug("MONGO URI: {}"
+                , environment.getProperty("spring.data.mongodb.uri"));
 
-        System.out.println("MONGO DATABASE: "
-                + environment.getProperty("spring.data.mongodb.database"));
+        log.debug("MONGO DATABASE: {}"
+                , environment.getProperty("spring.data.mongodb.database"));
 
         repository.deleteAll().block();
     }
