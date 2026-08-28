@@ -1,6 +1,8 @@
 package com.reserveme.cinema.model;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -13,4 +15,5 @@ public class Shows {
     private String showId;
     private String showName;
     private LocalDateTime showTime;
+    private long runLength;
 }
