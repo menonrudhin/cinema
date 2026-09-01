@@ -24,8 +24,11 @@ public class ShowCleanup {
     // Run every 15 minutes
     @Scheduled(cron = "*/10 * * * * *")
     public void showCleanup() {
-        log.debug("SCHEDULER RUNNING");
+        log.info("SCHEDULER RUNNING");
         LocalDateTime now = LocalDateTime.now();
+
+        log.info("repo bean: {}", showsRepository.getClass().getName());
+        showsRepository.count().subscribe(c -> log.info("repo count: {}", c));
 
         // delete returns Mono<Void>
         showsRepository.findAll()
