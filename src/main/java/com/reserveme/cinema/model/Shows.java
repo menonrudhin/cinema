@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Data
 public class Shows {
     @Id
+    private String id;
     private String showId;
     private String showName;
     private LocalDateTime showTime;
