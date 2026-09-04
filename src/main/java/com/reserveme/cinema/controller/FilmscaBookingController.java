@@ -12,10 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -40,12 +39,12 @@ public class FilmscaBookingController implements BookingController {
 
     @Override
     @PostMapping("/bookings")
-    public Mono<ResponseEntity<BookingDetails>> performBooking(@Valid @RequestBody BookingRequest bookingRequest, ServerWebExchange exchange) {
+    public Mono<ResponseEntity<BookingDetails>> performBooking(@Validated @RequestBody BookingRequest bookingRequest, ServerWebExchange exchange) {
         BookingDetails bookingDetails = bookingDetailsMapper.mapBookingDetails(bookingRequest);
         bookingDetails.setBookingId(bookingDetails.getAuditoriumId()+bookingDetails.getShowId()+bookingDetails.getSeatNumber());
 
         return  showsRepository.findByShowId(bookingDetails.getShowId())
-                        .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.FORBIDDEN, showNotFoundMessage)))
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.FORBIDDEN, showNotFoundMessage)))
                 .then(
                     bookingDetailsRepository.findByAuditoriumIdAndSeatNumberAndShowId(
                             bookingDetails.getAuditoriumId(), bookingDetails.getSeatNumber(), bookingDetails.getShowId())
@@ -59,6 +58,27 @@ public class FilmscaBookingController implements BookingController {
                                     .onErrorResume(DuplicateKeyException.class, e -> Mono.just(ResponseEntity.status(HttpStatus.CONFLICT)
                                             .header("X-Message", unavailableMessage)
                                             .build()))
-                ));
+                    )
+                );
     }
+
+
+    @Override
+    @GetMapping("/validateTicket/{bookingId}")
+    public Mono<ResponseEntity<Boolean>> validateTicket(@Validated @PathVariable String bookingId, ServerWebExchange exchange) {
+        return bookingDetailsRepository.existsByBookingId(bookingId)
+                .flatMap(exists -> {
+                    if(exists) {
+                        return Mono.just(ResponseEntity.status(HttpStatus.FOUND)
+                                .header("X-Message", "Ticket is valid")
+                                .body(true)
+                        );
+                    }
+                    return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).header("X-Message", "Ticket is invalid")
+                            .body(false));
+                 });
+    }
+
+
+
 }
