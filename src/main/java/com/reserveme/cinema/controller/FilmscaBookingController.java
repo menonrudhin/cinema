@@ -62,23 +62,16 @@ public class FilmscaBookingController implements BookingController {
                 );
     }
 
-
     @Override
-    @GetMapping("/validateTicket/{bookingId}")
-    public Mono<ResponseEntity<Boolean>> validateTicket(@Validated @PathVariable String bookingId, ServerWebExchange exchange) {
-        return bookingDetailsRepository.existsByBookingId(bookingId)
-                .flatMap(exists -> {
-                    if(exists) {
-                        return Mono.just(ResponseEntity.status(HttpStatus.FOUND)
-                                .header("X-Message", "Ticket is valid")
-                                .body(true)
-                        );
-                    }
-                    return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).header("X-Message", "Ticket is invalid")
-                            .body(false));
+    @PostMapping("/admissionRequest/{bookingId}")
+    public Mono<ResponseEntity<Boolean>> performAdmission(@Validated @PathVariable String bookingId, ServerWebExchange exchange) {
+        return bookingDetailsRepository.findByBookingIdAndAdmissionFlag(bookingId, false)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.FORBIDDEN, "Ticket cannot be re-used!")))
+                .flatMap(existingBooking -> {
+                    existingBooking.setAdmissionFlag(true);
+                    return bookingDetailsRepository.save(existingBooking)
+                            .onErrorResume(e -> Mono.error(new ResponseStatusException(HttpStatus.CONFLICT, "System error: " + e.getMessage())))
+                            .flatMap(booking -> Mono.just(ResponseEntity.status(HttpStatus.ACCEPTED).build()));
                  });
     }
-
-
-
 }

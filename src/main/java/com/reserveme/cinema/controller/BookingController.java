@@ -13,5 +13,5 @@ import reactor.core.publisher.Mono;
 @RestController
 public interface BookingController {
     Mono<ResponseEntity<BookingDetails>> performBooking(@Validated @RequestBody BookingRequest bookingRequest, ServerWebExchange exchange);
-    Mono<ResponseEntity<Boolean>> validateTicket(@Validated @PathVariable String bookingId, ServerWebExchange exchange);
+    Mono<ResponseEntity<Boolean>> performAdmission(@Validated @PathVariable String bookingId, ServerWebExchange exchange);
 }

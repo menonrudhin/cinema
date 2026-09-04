@@ -21,4 +21,5 @@ public class BookingDetails {
     private String accountId;
     private String showId;
     private String email;
+    private boolean admissionFlag;
 }

@@ -28,14 +28,14 @@ class BookingDetailsRepositoryTests {
 
     @BeforeEach
     void setUp() {
-        log.debug("ACTIVE PROFILES: {}"
-                , Arrays.toString(environment.getActiveProfiles()));
-
-        log.debug("MONGO URI: {}"
-                , environment.getProperty("spring.data.mongodb.uri"));
-
-        log.debug("MONGO DATABASE: {}"
-                , environment.getProperty("spring.data.mongodb.database"));
+//        log.debug("ACTIVE PROFILES: {}"
+//                , Arrays.toString(environment.getActiveProfiles()));
+//
+//        log.debug("MONGO URI: {}"
+//                , environment.getProperty("spring.data.mongodb.uri"));
+//
+//        log.debug("MONGO DATABASE: {}"
+//                , environment.getProperty("spring.data.mongodb.database"));
 
         repository.deleteAll().block();
     }

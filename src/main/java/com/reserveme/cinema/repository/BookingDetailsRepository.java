@@ -10,5 +10,5 @@ import reactor.core.publisher.Mono;
 public interface BookingDetailsRepository extends ReactiveMongoRepository<BookingDetails, String> {
     Flux<BookingDetails> findByBookingId(String bookingId);
     Flux<BookingDetails> findByAuditoriumIdAndSeatNumberAndShowId(String auditoriumId, int seatNumber, String showId);
-    Mono<Boolean> existsByBookingId(String bookingId);
+    Mono<BookingDetails> findByBookingIdAndAdmissionFlag(String bookingId, boolean admissionFlag);
 }

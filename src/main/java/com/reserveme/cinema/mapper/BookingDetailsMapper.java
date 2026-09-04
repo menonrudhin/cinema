@@ -14,5 +14,5 @@ public interface BookingDetailsMapper {
     @Mapping(source="accountId", target="accountId")
     @Mapping(source="showId", target="showId")
     @Mapping(source = "email", target = "email")
-    public BookingDetails mapBookingDetails(BookingRequest bookingRequest);
+    BookingDetails mapBookingDetails(BookingRequest bookingRequest);
 }
