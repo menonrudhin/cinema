@@ -11,4 +11,5 @@ public interface BookingDetailsRepository extends ReactiveMongoRepository<Bookin
     Flux<BookingDetails> findByBookingId(String bookingId);
     Flux<BookingDetails> findByAuditoriumIdAndSeatNumberAndShowId(String auditoriumId, int seatNumber, String showId);
     Mono<BookingDetails> findByBookingIdAndAdmissionFlag(String bookingId, boolean admissionFlag);
+    Mono<Void> deleteByShowId(String showId);
 }
